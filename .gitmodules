@@ -1,0 +1,9 @@
+[submodule "lib/batteries"]
+	path = lib/batteries
+	url = git@github.com:1bardesign/batteries.git
+[submodule "lib/Concord"]
+	path = lib/Concord
+	url = git@github.com:Keyslam-Group/Concord.git
+[submodule "lib/baton"]
+	path = lib/baton
+	url = git@github.com:tesselode/baton.git
