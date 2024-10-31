@@ -2,18 +2,17 @@ local my = require 'lib.my.init'
 
 require("lib.batteries"):export()
 Concord = require("lib.Concord")
+baton = require("lib.baton.baton")
 Concord.helpers = my.concord_helpers
 
-local vc_default = Concord.helpers.value_component_with_default
+require 'components'
 
-
-Concord.component("label", vc_default(""))
-Concord.component("position", vc_default(vec2(0, 0)))
 
 Systems = {}
 Concord.utils.loadNamespace("systems", Systems)
 
 local world = Concord.world()
+local physic_world
 
 function world:onEntityAdded(e)
    -- add the key component to the entity in order to have a unique
@@ -31,13 +30,28 @@ function love.load()
    world:addSystems(table.unpack(allSystems))
 
    Concord.entity(world)
-       :give("label", "Hello, World!")
-       :give("position", vec2(100, 100))
+      :give("player_input", baton.new {
+         controls = {
+            left = { 'key:left', 'key:a', 'axis:leftx-', 'button:dpleft' },
+            right = { 'key:right', 'key:d', 'axis:leftx+', 'button:dpright' },
+            up = { 'key:up', 'key:w', 'axis:lefty-', 'button:dpup' },
+            down = { 'key:down', 'key:s', 'axis:lefty+', 'button:dpdown' },
+            shoot = { 'key:space', 'button:a' },
+            thrust = { 'key:e', 'button:x' },
+            pause = { 'key:p', 'button:start' },
+         },
+         pairs = {
+            move = { 'left', 'right', 'up', 'down' }
+         },
+         joystick = love.joystick.getJoysticks()[1],
+      })
 
    world:emit("load")
 end
 
 function love.update(dt)
+   world:emit("pre_update", dt)
+   world:emit("input", dt)
    world:emit("update", dt)
 end
 
