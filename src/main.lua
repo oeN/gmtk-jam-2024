@@ -1,12 +1,11 @@
-local my = require 'lib.my.init'
+local my = require("lib.my.init")
 
 require("lib.batteries"):export()
 Concord = require("lib.Concord")
 baton = require("lib.baton.baton")
 Concord.helpers = my.concord_helpers
 
-require 'components'
-
+require("components")
 
 Systems = {}
 Concord.utils.loadNamespace("systems", Systems)
@@ -29,22 +28,24 @@ function love.load()
    end
    world:addSystems(table.unpack(allSystems))
 
-   Concord.entity(world)
-      :give("player_input", baton.new {
+   Concord.entity(world):give(
+      "player_input",
+      baton.new({
          controls = {
-            left = { 'key:left', 'key:a', 'axis:leftx-', 'button:dpleft' },
-            right = { 'key:right', 'key:d', 'axis:leftx+', 'button:dpright' },
-            up = { 'key:up', 'key:w', 'axis:lefty-', 'button:dpup' },
-            down = { 'key:down', 'key:s', 'axis:lefty+', 'button:dpdown' },
-            shoot = { 'key:space', 'button:a' },
-            thrust = { 'key:e', 'button:x' },
-            pause = { 'key:p', 'button:start' },
+            left = { "key:left", "key:a", "axis:leftx-", "button:dpleft" },
+            right = { "key:right", "key:d", "axis:leftx+", "button:dpright" },
+            up = { "key:up", "key:w", "axis:lefty-", "button:dpup" },
+            down = { "key:down", "key:s", "axis:lefty+", "button:dpdown" },
+            shoot = { "key:space", "button:a" },
+            thrust = { "key:e", "button:x" },
+            pause = { "key:p", "button:start" },
          },
          pairs = {
-            move = { 'left', 'right', 'up', 'down' }
+            move = { "left", "right", "up", "down" },
          },
          joystick = love.joystick.getJoysticks()[1],
       })
+   )
 
    world:emit("load")
 end
