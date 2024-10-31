@@ -4,7 +4,10 @@ local InitGameState = Concord.system()
 
 function InitGameState:load()
    local world = self:getWorld()
-   world:setResource("game_state", GameState())
+   local game_state = GameState()
+
+   game_state:playing()
+   world:setResource("game_state", game_state)
 end
 
 return InitGameState

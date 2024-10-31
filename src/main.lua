@@ -1,4 +1,4 @@
-local my = require("lib.my.init")
+my = require("lib.my.init")
 
 require("lib.batteries"):export()
 Concord = require("lib.Concord")
@@ -17,6 +17,15 @@ function world:onEntityAdded(e)
    -- add the key component to the entity in order to have a unique
    -- key.value for each entity and be able to use world:getEntityByKey(key)
    e:give("key")
+end
+
+function world:onEntityRemoved(e)
+   if e.physic_props then
+      e.physic_props.fixture:release()
+      e.physic_props.body:destroy()
+      e.physic_props.body:release()
+      e.physic_props.shape:release()
+   end
 end
 
 function love.load()
@@ -41,21 +50,25 @@ function love.load()
             pause = { "key:p", "button:start" },
          },
          pairs = {
-            move = { "left", "right", "up", "down" },
+            move = { "down", "up", "left", "right" },
          },
          joystick = love.joystick.getJoysticks()[1],
       })
    )
 
    world:emit("load")
+   world:emit("create_entities")
 end
 
 function love.update(dt)
    world:emit("pre_update", dt)
    world:emit("input", dt)
+   world:emit("physic_update", dt)
    world:emit("update", dt)
 end
 
 function love.draw()
+   world:emit("before_draw")
    world:emit("draw")
+   world:emit("after_draw")
 end
