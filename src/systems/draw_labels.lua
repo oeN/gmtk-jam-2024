@@ -1,5 +1,5 @@
 local DrawLabelsSystem = Concord.system({
-   pool = { "label", "position" }
+   pool = { "label", "position" },
 })
 
 DrawLabelsSystem.enabled_on_game_states = { "playing" }
@@ -8,9 +8,9 @@ DrawLabelsSystem.enabled_on_game_states = { "playing" }
 function DrawLabelsSystem:load()
    local world = self:getWorld()
 
-   Concord.entity(world)
-       :give("label", "Hello, World! Active on Playing state")
-       :give("position", vec2(100, 100))
+   -- Concord.entity(world)
+   --     :give("label", "Hello, World! Active on Playing state")
+   --     :give("position", vec2(100, 100))
 end
 
 function DrawLabelsSystem:draw()

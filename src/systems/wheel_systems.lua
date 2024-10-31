@@ -14,8 +14,8 @@ function WheelSystem:create_entities()
 
    physic_fixture:setRestitution(0.5)
    physic_body:setMass(100)
-   physic_body:setLinearDamping(0.2)
-   physic_body:setAngularDamping(0.8)
+   -- physic_body:setLinearDamping(0.9)
+   -- physic_body:setAngularDamping(0.2)
 
    -- temporary add here a simple wheel
    local wheel = Concord.entity(self:getWorld()):give("wheel"):give("key")
@@ -31,24 +31,53 @@ function WheelSystem:update(dt)
    local world = self:getWorld()
    local debug_info = world:getResource("debug_info") or {}
 
-   local moveX, moveY = 0, 0
-   local forwardForce = 2000
-   local turnSpeed = 30
+   local move_vec = vec2(0, 0)
+   local forward_force = 10000
+   local turn_speed = 70
+   local grip_factor = 0.6
+   local inertia_factor = 0.1
 
    for _, e in ipairs(self.player_input) do
       local player_input = e.player_input.value
-      moveX, moveY = player_input:get("move")
-      debug_info.move = "X: " .. moveX .. " - Y: " .. moveY
+      move_vec:scalar_set(player_input:get("move"))
+      debug_info.move = tostring(move_vec)
    end
 
    for _, e in ipairs(self.pool) do
       local physic_body = e.physic_props.body
-      local forX, forY = physic_body:getWorldVector(1, 0)
+      local mass = physic_body:getMass()
 
-      local dx, dy = forwardForce * forX * moveX, forwardForce * forY * moveY
+      -- X is forward, -X is backward, +Y is left, -Y is right
+      local current_right_normal = vec2(physic_body:getWorldVector(0, -1))
+      local current_forward_normal = vec2(physic_body:getWorldVector(1, 0))
 
-      physic_body:applyForce(dx, dy)
-      physic_body:setAngularVelocity(moveY * turnSpeed * dt)
+      local vel_vec = vec2(physic_body:getLinearVelocity())
+      local lateral_velocity = current_right_normal * current_right_normal:dot(vel_vec)
+
+      debug_info.vel_vec = tostring(vel_vec)
+      debug_info.lateral_velocity = tostring(lateral_velocity)
+
+      -- get rid of all the lateral velocity
+      local impulse = lateral_velocity * mass * -grip_factor
+      physic_body:applyLinearImpulse(impulse:unpack())
+      physic_body:applyAngularImpulse(inertia_factor * physic_body:getInertia() * -physic_body:getAngularVelocity())
+
+      debug_info.forward_vec = tostring(current_forward_normal)
+
+      local force_vec = current_forward_normal * forward_force * move_vec.x
+      if move_vec.x == 0 then
+         local forward_velocity = current_forward_normal * current_forward_normal:dot(vel_vec)
+         debug_info.forward_velocity = tostring(forward_velocity)
+         local current_forward_speed = forward_velocity:normalize()
+         force_vec = -forward_force * current_forward_speed
+         -- force_vec = forward_velocity * drag_force_magnitude * -vel_vec.x
+         -- physic_body:applyForce(drag_vec:unpack())
+      end
+
+      debug_info.force_vec = tostring(force_vec)
+
+      physic_body:applyForce(force_vec:unpack())
+      physic_body:setAngularVelocity(move_vec.y * turn_speed * dt)
    end
 
    -- world:setResource("debug_info", debug_info)

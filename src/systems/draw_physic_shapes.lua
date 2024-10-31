@@ -16,10 +16,10 @@ function DrawPhysicShapesSystem:draw()
          lg.setColor(1, 0, 0)
          if shape:getType() == "polygon" then
             lg.polygon("line", body:getWorldPoints(shape:getPoints()))
-         end
-
-         if shape:getType() == "circle" then
+         elseif shape:getType() == "circle" then
             lg.circle("line", body:getX(), body:getY(), shape:getRadius())
+         else
+            lg.line(body:getWorldPoints(shape:getPoints()))
          end
       end)
    end
